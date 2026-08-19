@@ -1,7 +1,7 @@
 include .env
 export
 
-MIGRATE_IMAGE := ghcr.io/golang-migrate/migrate:latest
+MIGRATE_IMAGE := migrate/migrate:latest
 DB_URL        := postgres://$(DB_USER):$(DB_PASSWORD)@localhost:$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)
 MIGRATE_CMD   := docker run --rm --network host \
                    -v $(PWD)/migrations:/migrations \
