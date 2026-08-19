@@ -1,0 +1,18 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "./query"
+    schema: "./migrations"
+    gen:
+      go:
+        package: "repository"
+        out: "./internal/repository/sqlc"
+        emit_json_tags: true
+        emit_prepared_queries: false
+        overrides:
+          - db_type: "uuid"
+            go_type: "string"
+          - db_type: "timestamptz"
+            go_type: "time.Time"
+          - column: "users.password_hash"
+            go_type: "*string"
