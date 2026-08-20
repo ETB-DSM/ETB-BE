@@ -1,0 +1,2 @@
+ALTER TABLE sos_events ADD COLUMN battery INT;
+ALTER TABLE sos_events ADD COLUMN sent_to_guardian BOOL NOT NULL DEFAULT FALSE;

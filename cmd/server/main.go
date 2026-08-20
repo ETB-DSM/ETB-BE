@@ -40,12 +40,21 @@ func main() {
 	sosSvc := service.NewSos(q)
 	ocrSvc := service.NewOcr(q)
 
+	embeddedUserSvc := service.NewEmbeddedUser(q)
+	locationSvc := service.NewLocation(q)
+	deviceStatusSvc := service.NewDeviceStatus(q)
+	navigationSvc := service.NewNavigation(q)
+
 	authH := handler.NewAuth(authSvc)
 	deviceH := handler.NewDevice(deviceSvc)
 	guardianH := handler.NewGuardian(guardianSvc)
 	destinationH := handler.NewDestination(destinationSvc)
 	sosH := handler.NewSos(sosSvc)
 	ocrH := handler.NewOcr(ocrSvc)
+	embeddedUserH := handler.NewEmbeddedUser(embeddedUserSvc)
+	locationH := handler.NewLocation(locationSvc)
+	deviceStatusH := handler.NewDeviceStatus(deviceStatusSvc)
+	navigationH := handler.NewNavigation(navigationSvc)
 	hub := handler.NewHub()
 	wsH := handler.NewWs(hub, q)
 
@@ -53,7 +62,7 @@ func main() {
 	r.Use(gin.Recovery(), gin.Logger())
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "DELETE", "OPTIONS"},
+		AllowMethods:     []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Authorization", "Content-Type"},
 		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
@@ -89,6 +98,25 @@ func main() {
 		authRequired.GET("/sos", sosH.List)
 
 		authRequired.POST("/ocr-logs", ocrH.Create)
+
+		authRequired.POST("/navigation/sessions", navigationH.CreateSession)
+		authRequired.POST("/navigation/sessions/:sessionId/instructions", navigationH.UpdateInstruction)
+		authRequired.PATCH("/navigation/sessions/:sessionId/status", navigationH.UpdateSessionStatus)
+	}
+
+	// Embedded API — /api/... (no JWT, userId in body)
+	embedded := r.Group("/api")
+	{
+		embedded.POST("/users", embeddedUserH.Register)
+		embedded.GET("/users/:userId", embeddedUserH.Get)
+		embedded.POST("/location", locationH.Save)
+		embedded.POST("/sos", sosH.CreateEmbedded)
+		embedded.POST("/device/status", deviceStatusH.Update)
+		embedded.GET("/device/status/:deviceId", deviceStatusH.Get)
+		embedded.POST("/ocr/results", ocrH.Create)
+		embedded.POST("/destinations", destinationH.CreateEmbedded)
+		embedded.GET("/destinations", destinationH.ListEmbedded)
+		embedded.GET("/navigation/sessions/:sessionId/instruction", navigationH.GetLatestInstruction)
 	}
 
 	r.GET("/ws/device", middleware.Auth(cfg), wsH.Handle)

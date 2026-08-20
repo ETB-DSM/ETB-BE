@@ -32,6 +32,20 @@ func (h *SosHandler) Create(c *gin.Context) {
 	domain.OK(c, http.StatusCreated, res)
 }
 
+func (h *SosHandler) CreateEmbedded(c *gin.Context) {
+	var req domain.EmbeddedCreateSosRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		domain.Fail(c, domain.ErrInvalidRequest)
+		return
+	}
+	res, err := h.svc.CreateEmbedded(c.Request.Context(), req)
+	if err != nil {
+		domain.Fail(c, toAppErr(err))
+		return
+	}
+	domain.OK(c, http.StatusCreated, res)
+}
+
 func (h *SosHandler) List(c *gin.Context) {
 	userID := c.GetString("userId")
 	res, err := h.svc.List(c.Request.Context(), userID)
