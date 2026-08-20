@@ -9,6 +9,7 @@ import (
 
 type SosService interface {
 	Create(ctx context.Context, userID string, req domain.CreateSosRequest) (domain.SosResponse, error)
+	CreateEmbedded(ctx context.Context, req domain.EmbeddedCreateSosRequest) (domain.SosResponse, error)
 	List(ctx context.Context, userID string) ([]domain.SosResponse, error)
 }
 
@@ -24,24 +25,37 @@ func (s *sosService) Create(ctx context.Context, userID string, req domain.Creat
 	if _, err := s.repo.GetDevice(ctx, req.DeviceID, userID); err != nil {
 		return domain.SosResponse{}, domain.ErrNotFound
 	}
+	return s.createEvent(ctx, userID, req.DeviceID, req.EventType, req.Latitude, req.Longitude, req.Battery)
+}
 
+func (s *sosService) CreateEmbedded(ctx context.Context, req domain.EmbeddedCreateSosRequest) (domain.SosResponse, error) {
+	if _, err := s.repo.GetEmbeddedUserByID(ctx, req.UserID); err != nil {
+		return domain.SosResponse{}, domain.ErrNotFound
+	}
+	return s.createEvent(ctx, req.UserID, req.DeviceID, req.EventType, req.Latitude, req.Longitude, req.Battery)
+}
+
+func (s *sosService) createEvent(ctx context.Context, userID, deviceID, eventType string, lat, lon float64, battery *int32) (domain.SosResponse, error) {
 	e, err := s.repo.CreateSosEvent(ctx, repository.CreateSosEventParams{
-		UserID:    userID,
-		DeviceID:  req.DeviceID,
-		EventType: req.EventType,
-		Latitude:  req.Latitude,
-		Longitude: req.Longitude,
+		UserID:         userID,
+		DeviceID:       deviceID,
+		EventType:      eventType,
+		Latitude:       lat,
+		Longitude:      lon,
+		Battery:        battery,
+		SentToGuardian: false,
 	})
 	if err != nil {
 		return domain.SosResponse{}, domain.ErrInternalError
 	}
 	return domain.SosResponse{
-		SosID:     e.ID,
-		DeviceID:  e.DeviceID,
-		EventType: e.EventType,
-		Latitude:  e.Latitude,
-		Longitude: e.Longitude,
-		CreatedAt: e.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		SosID:          e.ID,
+		DeviceID:       e.DeviceID,
+		EventType:      e.EventType,
+		Latitude:       e.Latitude,
+		Longitude:      e.Longitude,
+		SentToGuardian: e.SentToGuardian,
+		CreatedAt:      e.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}, nil
 }
 
@@ -53,12 +67,13 @@ func (s *sosService) List(ctx context.Context, userID string) ([]domain.SosRespo
 	res := make([]domain.SosResponse, len(events))
 	for i, e := range events {
 		res[i] = domain.SosResponse{
-			SosID:     e.ID,
-			DeviceID:  e.DeviceID,
-			EventType: e.EventType,
-			Latitude:  e.Latitude,
-			Longitude: e.Longitude,
-			CreatedAt: e.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+			SosID:          e.ID,
+			DeviceID:       e.DeviceID,
+			EventType:      e.EventType,
+			Latitude:       e.Latitude,
+			Longitude:      e.Longitude,
+			SentToGuardian: e.SentToGuardian,
+			CreatedAt:      e.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		}
 	}
 	return res, nil

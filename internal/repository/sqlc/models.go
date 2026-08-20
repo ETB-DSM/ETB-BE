@@ -41,13 +41,15 @@ type Destination struct {
 }
 
 type SosEvent struct {
-	ID        string    `json:"id"`
-	UserID    string    `json:"user_id"`
-	DeviceID  string    `json:"device_id"`
-	EventType string    `json:"event_type"`
-	Latitude  float64   `json:"latitude"`
-	Longitude float64   `json:"longitude"`
-	CreatedAt time.Time `json:"created_at"`
+	ID             string    `json:"id"`
+	UserID         string    `json:"user_id"`
+	DeviceID       string    `json:"device_id"`
+	EventType      string    `json:"event_type"`
+	Latitude       float64   `json:"latitude"`
+	Longitude      float64   `json:"longitude"`
+	Battery        *int32    `json:"battery"`
+	SentToGuardian bool      `json:"sent_to_guardian"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 type OcrLog struct {

@@ -6,31 +6,34 @@ import (
 	"context"
 )
 
-const createSosEvent = `
-INSERT INTO sos_events (user_id, device_id, event_type, latitude, longitude)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id, user_id, device_id, event_type, latitude, longitude, created_at
-`
-
 type CreateSosEventParams struct {
-	UserID    string  `json:"user_id"`
-	DeviceID  string  `json:"device_id"`
-	EventType string  `json:"event_type"`
-	Latitude  float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
+	UserID         string  `json:"user_id"`
+	DeviceID       string  `json:"device_id"`
+	EventType      string  `json:"event_type"`
+	Latitude       float64 `json:"latitude"`
+	Longitude      float64 `json:"longitude"`
+	Battery        *int32  `json:"battery"`
+	SentToGuardian bool    `json:"sent_to_guardian"`
 }
+
+const createSosEvent = `
+INSERT INTO sos_events (user_id, device_id, event_type, latitude, longitude, battery, sent_to_guardian)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, user_id, device_id, event_type, latitude, longitude, battery, sent_to_guardian, created_at
+`
 
 func (q *Queries) CreateSosEvent(ctx context.Context, arg CreateSosEventParams) (SosEvent, error) {
 	row := q.db.QueryRow(ctx, createSosEvent,
-		arg.UserID, arg.DeviceID, arg.EventType, arg.Latitude, arg.Longitude,
+		arg.UserID, arg.DeviceID, arg.EventType, arg.Latitude, arg.Longitude, arg.Battery, arg.SentToGuardian,
 	)
 	var i SosEvent
-	err := row.Scan(&i.ID, &i.UserID, &i.DeviceID, &i.EventType, &i.Latitude, &i.Longitude, &i.CreatedAt)
+	err := row.Scan(&i.ID, &i.UserID, &i.DeviceID, &i.EventType, &i.Latitude, &i.Longitude,
+		&i.Battery, &i.SentToGuardian, &i.CreatedAt)
 	return i, err
 }
 
 const listSosEventsByUser = `
-SELECT id, user_id, device_id, event_type, latitude, longitude, created_at
+SELECT id, user_id, device_id, event_type, latitude, longitude, battery, sent_to_guardian, created_at
 FROM sos_events WHERE user_id = $1 ORDER BY created_at DESC
 `
 
@@ -43,7 +46,8 @@ func (q *Queries) ListSosEventsByUser(ctx context.Context, userID string) ([]Sos
 	var items []SosEvent
 	for rows.Next() {
 		var i SosEvent
-		if err := rows.Scan(&i.ID, &i.UserID, &i.DeviceID, &i.EventType, &i.Latitude, &i.Longitude, &i.CreatedAt); err != nil {
+		if err := rows.Scan(&i.ID, &i.UserID, &i.DeviceID, &i.EventType, &i.Latitude, &i.Longitude,
+			&i.Battery, &i.SentToGuardian, &i.CreatedAt); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
