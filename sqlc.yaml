@@ -7,12 +7,20 @@ sql:
       go:
         package: "repository"
         out: "./internal/repository/sqlc"
+        sql_package: "pgx/v5"
         emit_json_tags: true
         emit_prepared_queries: false
         overrides:
           - db_type: "uuid"
             go_type: "string"
+          - db_type: "uuid"
+            nullable: true
+            go_type:
+              type: "string"
+              pointer: true
           - db_type: "timestamptz"
             go_type: "time.Time"
           - column: "users.password_hash"
-            go_type: "*string"
+            go_type:
+              type: "string"
+              pointer: true

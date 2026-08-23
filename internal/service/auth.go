@@ -23,7 +23,7 @@ type AuthService interface {
 	VerifyEmail(ctx context.Context, req domain.VerifyEmailRequest) error
 	Login(ctx context.Context, req domain.LoginRequest) (domain.TokenResponse, error)
 	LoginGoogle(ctx context.Context, idToken string) (domain.TokenResponse, error)
-	Refresh(ctx context.Context, refreshToken string) (string, error)
+	Refresh(ctx context.Context, refreshToken string) (domain.TokenResponse, error)
 	Logout(ctx context.Context, userID string) error
 }
 
@@ -83,7 +83,7 @@ func (s *authService) VerifyEmail(ctx context.Context, req domain.VerifyEmailReq
 	if err != nil || stored != req.Code {
 		return domain.ErrInvalidVerifyCode
 	}
-	if err := s.repo.UpdateEmailVerified(ctx, true, req.Email); err != nil {
+	if err := s.repo.UpdateEmailVerified(ctx, repository.UpdateEmailVerifiedParams{EmailVerified: true, Email: req.Email}); err != nil {
 		return domain.ErrInternalError
 	}
 	s.redis.Del(ctx, key)
@@ -136,7 +136,7 @@ func (s *authService) LoginGoogle(ctx context.Context, idTokenStr string) (domai
 	return s.issueTokens(ctx, user.ID)
 }
 
-func (s *authService) Refresh(ctx context.Context, refreshToken string) (string, error) {
+func (s *authService) Refresh(ctx context.Context, refreshToken string) (domain.TokenResponse, error) {
 	token, err := jwt.Parse(refreshToken, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, domain.ErrUnauthorized
@@ -144,25 +144,25 @@ func (s *authService) Refresh(ctx context.Context, refreshToken string) (string,
 		return []byte(s.cfg.JWT.RefreshSecret), nil
 	})
 	if err != nil || !token.Valid {
-		return "", domain.ErrUnauthorized
+		return domain.TokenResponse{}, domain.ErrUnauthorized
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", domain.ErrUnauthorized
+		return domain.TokenResponse{}, domain.ErrUnauthorized
 	}
 	userID, ok := claims["sub"].(string)
 	if !ok {
-		return "", domain.ErrUnauthorized
+		return domain.TokenResponse{}, domain.ErrUnauthorized
 	}
 
 	key := fmt.Sprintf("refresh:%s", userID)
 	stored, err := s.redis.Get(ctx, key).Result()
 	if err != nil || stored != refreshToken {
-		return "", domain.ErrUnauthorized
+		return domain.TokenResponse{}, domain.ErrUnauthorized
 	}
 
-	return s.generateAccessToken(userID)
+	return s.issueTokens(ctx, userID)
 }
 
 func (s *authService) Logout(ctx context.Context, userID string) error {

@@ -12,6 +12,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `PRD.md` — 기능 요구사항, 사용자 흐름, API 목록
 - `TRD.md` — 기술 스택, 아키텍처, DB 스키마, 인증 설계, WebSocket 설계
+- `api.md` — 전체 API 엔드포인트 명세 (경로, 요청/응답 포맷, 에러 코드)
+
+## API 문서 관리 규칙
+
+**API 엔드포인트가 추가·변경·삭제될 때마다 `api.md`를 반드시 갱신한다.**
+
+갱신이 필요한 경우:
+- 새 엔드포인트 추가 시 → 해당 섹션에 항목 추가
+- 요청/응답 필드 변경 시 → 해당 엔드포인트 테이블 수정
+- 엔드포인트 경로·메서드 변경 시 → 기존 항목 수정
+- 엔드포인트 삭제 시 → 해당 항목 제거
+
+`api.md` 갱신은 코드 작성과 동일한 커밋에 포함한다.
 
 ## Commands
 

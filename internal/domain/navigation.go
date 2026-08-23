@@ -1,18 +1,18 @@
 package domain
 
 type CreateSessionRequest struct {
-	DeviceID       string  `json:"deviceId"       binding:"required"`
-	DestinationID  string  `json:"destinationId"  binding:"required"`
-	StartLatitude  float64 `json:"startLatitude"  binding:"required"`
-	StartLongitude float64 `json:"startLongitude" binding:"required"`
+	DeviceID       *string  `json:"deviceId"`
+	DestinationID  string   `json:"destinationId" binding:"required"`
+	StartLatitude  *float64 `json:"startLatitude"`
+	StartLongitude *float64 `json:"startLongitude"`
 }
 
 type SessionResponse struct {
-	SessionID      string  `json:"sessionId"`
-	Status         string  `json:"status"`
-	StartLatitude  float64 `json:"startLatitude"`
-	StartLongitude float64 `json:"startLongitude"`
-	CreatedAt      string  `json:"createdAt"`
+	SessionID      string   `json:"sessionId"`
+	Status         string   `json:"status"`
+	StartLatitude  *float64 `json:"startLatitude,omitempty"`
+	StartLongitude *float64 `json:"startLongitude,omitempty"`
+	CreatedAt      string   `json:"createdAt"`
 }
 
 type UpdateInstructionRequest struct {

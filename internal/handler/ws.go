@@ -62,7 +62,7 @@ func (h *WsHandler) Handle(c *gin.Context) {
 	}
 
 	userID := c.GetString("userId")
-	if _, err := h.repo.GetDevice(c.Request.Context(), deviceID, userID); err != nil {
+	if _, err := h.repo.GetDevice(c.Request.Context(), repository.GetDeviceParams{ID: deviceID, UserID: userID}); err != nil {
 		domain.Fail(c, domain.ErrNotFound)
 		return
 	}

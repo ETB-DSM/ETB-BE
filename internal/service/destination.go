@@ -49,10 +49,10 @@ func (s *destinationService) List(ctx context.Context, userID string) ([]domain.
 }
 
 func (s *destinationService) Delete(ctx context.Context, userID, destinationID string) error {
-	if _, err := s.repo.GetDestination(ctx, destinationID, userID); err != nil {
+	if _, err := s.repo.GetDestination(ctx, repository.GetDestinationParams{ID: destinationID, UserID: userID}); err != nil {
 		return domain.ErrNotFound
 	}
-	if err := s.repo.DeleteDestination(ctx, destinationID, userID); err != nil {
+	if err := s.repo.DeleteDestination(ctx, repository.DeleteDestinationParams{ID: destinationID, UserID: userID}); err != nil {
 		return domain.ErrInternalError
 	}
 	return nil

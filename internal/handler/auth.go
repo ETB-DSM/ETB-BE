@@ -77,12 +77,12 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 		domain.Fail(c, domain.ErrInvalidRequest)
 		return
 	}
-	accessToken, err := h.svc.Refresh(c.Request.Context(), req.RefreshToken)
+	tokens, err := h.svc.Refresh(c.Request.Context(), req.RefreshToken)
 	if err != nil {
 		domain.Fail(c, toAppErr(err))
 		return
 	}
-	domain.OK(c, http.StatusOK, gin.H{"accessToken": accessToken})
+	domain.OK(c, http.StatusOK, tokens)
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {

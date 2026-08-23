@@ -54,10 +54,10 @@ func (s *guardianService) List(ctx context.Context, userID string) ([]domain.Gua
 }
 
 func (s *guardianService) Delete(ctx context.Context, userID, guardianID string) error {
-	if _, err := s.repo.GetGuardian(ctx, guardianID, userID); err != nil {
+	if _, err := s.repo.GetGuardian(ctx, repository.GetGuardianParams{ID: guardianID, UserID: userID}); err != nil {
 		return domain.ErrNotFound
 	}
-	if err := s.repo.DeleteGuardian(ctx, guardianID, userID); err != nil {
+	if err := s.repo.DeleteGuardian(ctx, repository.DeleteGuardianParams{ID: guardianID, UserID: userID}); err != nil {
 		return domain.ErrInternalError
 	}
 	return nil
