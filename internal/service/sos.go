@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"github.com/jackc/pgx/v5/pgtype"
+
 	"github.com/Heiji57/ETB-BE/internal/domain"
 	repository "github.com/Heiji57/ETB-BE/internal/repository/sqlc"
 )
@@ -22,7 +24,7 @@ func NewSos(repo *repository.Queries) SosService {
 }
 
 func (s *sosService) Create(ctx context.Context, userID string, req domain.CreateSosRequest) (domain.SosResponse, error) {
-	if _, err := s.repo.GetDevice(ctx, req.DeviceID, userID); err != nil {
+	if _, err := s.repo.GetDevice(ctx, repository.GetDeviceParams{ID: req.DeviceID, UserID: userID}); err != nil {
 		return domain.SosResponse{}, domain.ErrNotFound
 	}
 	return s.createEvent(ctx, userID, req.DeviceID, req.EventType, req.Latitude, req.Longitude, req.Battery)
@@ -36,14 +38,17 @@ func (s *sosService) CreateEmbedded(ctx context.Context, req domain.EmbeddedCrea
 }
 
 func (s *sosService) createEvent(ctx context.Context, userID, deviceID, eventType string, lat, lon float64, battery *int32) (domain.SosResponse, error) {
+	var bat pgtype.Int4
+	if battery != nil {
+		bat = pgtype.Int4{Int32: *battery, Valid: true}
+	}
 	e, err := s.repo.CreateSosEvent(ctx, repository.CreateSosEventParams{
-		UserID:         userID,
-		DeviceID:       deviceID,
-		EventType:      eventType,
-		Latitude:       lat,
-		Longitude:      lon,
-		Battery:        battery,
-		SentToGuardian: false,
+		UserID:    userID,
+		DeviceID:  deviceID,
+		EventType: eventType,
+		Latitude:  lat,
+		Longitude: lon,
+		Battery:   bat,
 	})
 	if err != nil {
 		return domain.SosResponse{}, domain.ErrInternalError

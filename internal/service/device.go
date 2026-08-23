@@ -50,10 +50,10 @@ func (s *deviceService) List(ctx context.Context, userID string) ([]domain.Devic
 }
 
 func (s *deviceService) Delete(ctx context.Context, userID, deviceID string) error {
-	if _, err := s.repo.GetDevice(ctx, deviceID, userID); err != nil {
+	if _, err := s.repo.GetDevice(ctx, repository.GetDeviceParams{ID: deviceID, UserID: userID}); err != nil {
 		return domain.ErrNotFound
 	}
-	if err := s.repo.DeleteDevice(ctx, deviceID, userID); err != nil {
+	if err := s.repo.DeleteDevice(ctx, repository.DeleteDeviceParams{ID: deviceID, UserID: userID}); err != nil {
 		return domain.ErrInternalError
 	}
 	return nil

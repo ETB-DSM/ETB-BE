@@ -1,6 +1,6 @@
 -- name: CreateSosEvent :one
-INSERT INTO sos_events (user_id, device_id, event_type, latitude, longitude)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO sos_events (user_id, device_id, event_type, latitude, longitude, battery)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
 -- name: ListSosEventsByUser :many
