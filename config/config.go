@@ -13,7 +13,7 @@ type Config struct {
 	DB     DBConfig
 	Redis  RedisConfig
 	JWT    JWTConfig
-	SMTP   SMTPConfig
+	Resend ResendConfig
 	Google GoogleConfig
 	Email  EmailConfig
 }
@@ -44,12 +44,9 @@ type JWTConfig struct {
 	RefreshExpireDay int
 }
 
-type SMTPConfig struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	From     string
+type ResendConfig struct {
+	APIKey string
+	From   string
 }
 
 type GoogleConfig struct {
@@ -87,12 +84,9 @@ func Load() *Config {
 			AccessExpireMin:  getEnvInt("JWT_ACCESS_EXPIRE_MIN", 15),
 			RefreshExpireDay: getEnvInt("JWT_REFRESH_EXPIRE_DAY", 7),
 		},
-		SMTP: SMTPConfig{
-			Host:     mustEnv("SMTP_HOST"),
-			Port:     getEnvInt("SMTP_PORT", 587),
-			User:     mustEnv("SMTP_USER"),
-			Password: mustEnv("SMTP_PASSWORD"),
-			From:     mustEnv("SMTP_FROM"),
+		Resend: ResendConfig{
+			APIKey: mustEnv("RESEND_API_KEY"),
+			From:   mustEnv("RESEND_FROM"),
 		},
 		Google: GoogleConfig{
 			ClientID: mustEnv("GOOGLE_CLIENT_ID"),

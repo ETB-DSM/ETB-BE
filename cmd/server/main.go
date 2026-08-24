@@ -29,7 +29,7 @@ func main() {
 	rdb := infra.NewRedis(cfg)
 	defer rdb.Close()
 
-	mailer := infra.NewSMTP(cfg)
+	mailer := infra.NewMailer(cfg)
 
 	q := repository.New(pool)
 
