@@ -1,6 +1,6 @@
 module github.com/Heiji57/ETB-BE
 
-go 1.22
+go 1.23
 
 require (
 	github.com/gin-contrib/cors v1.7.2
@@ -10,9 +10,9 @@ require (
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.7.0
+	github.com/resend/resend-go/v3 v3.16.0
 	golang.org/x/crypto v0.31.0
 	google.golang.org/api v0.196.0
-	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )
 
 require (
@@ -64,6 +64,5 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/grpc v1.66.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
-	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
