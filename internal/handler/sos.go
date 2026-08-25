@@ -38,7 +38,9 @@ func (h *SosHandler) CreateEmbedded(c *gin.Context) {
 		domain.Fail(c, domain.ErrInvalidRequest)
 		return
 	}
-	res, err := h.svc.CreateEmbedded(c.Request.Context(), req)
+	userID := c.GetString("userId")
+	deviceID := c.GetString("deviceId")
+	res, err := h.svc.CreateEmbedded(c.Request.Context(), userID, deviceID, req)
 	if err != nil {
 		domain.Fail(c, toAppErr(err))
 		return

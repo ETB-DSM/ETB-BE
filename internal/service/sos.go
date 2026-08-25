@@ -11,7 +11,7 @@ import (
 
 type SosService interface {
 	Create(ctx context.Context, userID string, req domain.CreateSosRequest) (domain.SosResponse, error)
-	CreateEmbedded(ctx context.Context, req domain.EmbeddedCreateSosRequest) (domain.SosResponse, error)
+	CreateEmbedded(ctx context.Context, userID, deviceID string, req domain.EmbeddedCreateSosRequest) (domain.SosResponse, error)
 	List(ctx context.Context, userID string) ([]domain.SosResponse, error)
 }
 
@@ -30,11 +30,8 @@ func (s *sosService) Create(ctx context.Context, userID string, req domain.Creat
 	return s.createEvent(ctx, userID, req.DeviceID, req.EventType, req.Latitude, req.Longitude, req.Battery)
 }
 
-func (s *sosService) CreateEmbedded(ctx context.Context, req domain.EmbeddedCreateSosRequest) (domain.SosResponse, error) {
-	if _, err := s.repo.GetEmbeddedUserByID(ctx, req.UserID); err != nil {
-		return domain.SosResponse{}, domain.ErrNotFound
-	}
-	return s.createEvent(ctx, req.UserID, req.DeviceID, req.EventType, req.Latitude, req.Longitude, req.Battery)
+func (s *sosService) CreateEmbedded(ctx context.Context, userID, deviceID string, req domain.EmbeddedCreateSosRequest) (domain.SosResponse, error) {
+	return s.createEvent(ctx, userID, deviceID, req.EventType, req.Latitude, req.Longitude, req.Battery)
 }
 
 func (s *sosService) createEvent(ctx context.Context, userID, deviceID, eventType string, lat, lon float64, battery *int32) (domain.SosResponse, error) {

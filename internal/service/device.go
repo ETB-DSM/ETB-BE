@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"crypto/rand"
+	"fmt"
 
 	"github.com/Heiji57/ETB-BE/internal/domain"
 	repository "github.com/Heiji57/ETB-BE/internal/repository/sqlc"
@@ -30,11 +32,26 @@ func (s *deviceService) Create(ctx context.Context, userID, name string) (domain
 		return domain.DeviceResponse{}, domain.ErrDeviceLimitExceeded
 	}
 
-	d, err := s.repo.CreateDevice(ctx, repository.CreateDeviceParams{UserID: userID, Name: name})
+	apiKey, err := generateAPIKey()
 	if err != nil {
 		return domain.DeviceResponse{}, domain.ErrInternalError
 	}
-	return toDeviceResponse(d), nil
+
+	d, err := s.repo.CreateDevice(ctx, repository.CreateDeviceParams{UserID: userID, Name: name, APIKey: apiKey})
+	if err != nil {
+		return domain.DeviceResponse{}, domain.ErrInternalError
+	}
+	res := toDeviceResponse(d)
+	res.APIKey = d.APIKey
+	return res, nil
+}
+
+func generateAPIKey() (string, error) {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%x", b), nil
 }
 
 func (s *deviceService) List(ctx context.Context, userID string) ([]domain.DeviceResponse, error) {
@@ -67,3 +84,4 @@ func toDeviceResponse(d repository.Device) domain.DeviceResponse {
 		CreatedAt: d.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}
 }
+

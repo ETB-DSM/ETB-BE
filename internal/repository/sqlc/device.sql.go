@@ -21,18 +21,19 @@ func (q *Queries) CountDevicesByUser(ctx context.Context, userID string) (int64,
 }
 
 const createDevice = `-- name: CreateDevice :one
-INSERT INTO devices (user_id, name)
-VALUES ($1, $2)
-RETURNING id, user_id, name, is_active, created_at
+INSERT INTO devices (user_id, name, api_key)
+VALUES ($1, $2, $3)
+RETURNING id, user_id, name, is_active, created_at, api_key
 `
 
 type CreateDeviceParams struct {
 	UserID string `json:"user_id"`
 	Name   string `json:"name"`
+	APIKey string `json:"api_key"`
 }
 
 func (q *Queries) CreateDevice(ctx context.Context, arg CreateDeviceParams) (Device, error) {
-	row := q.db.QueryRow(ctx, createDevice, arg.UserID, arg.Name)
+	row := q.db.QueryRow(ctx, createDevice, arg.UserID, arg.Name, arg.APIKey)
 	var i Device
 	err := row.Scan(
 		&i.ID,
@@ -40,6 +41,7 @@ func (q *Queries) CreateDevice(ctx context.Context, arg CreateDeviceParams) (Dev
 		&i.Name,
 		&i.IsActive,
 		&i.CreatedAt,
+		&i.APIKey,
 	)
 	return i, err
 }
@@ -59,7 +61,7 @@ func (q *Queries) DeleteDevice(ctx context.Context, arg DeleteDeviceParams) erro
 }
 
 const getDevice = `-- name: GetDevice :one
-SELECT id, user_id, name, is_active, created_at FROM devices WHERE id = $1 AND user_id = $2 LIMIT 1
+SELECT id, user_id, name, is_active, created_at, api_key FROM devices WHERE id = $1 AND user_id = $2 LIMIT 1
 `
 
 type GetDeviceParams struct {
@@ -76,12 +78,31 @@ func (q *Queries) GetDevice(ctx context.Context, arg GetDeviceParams) (Device, e
 		&i.Name,
 		&i.IsActive,
 		&i.CreatedAt,
+		&i.APIKey,
+	)
+	return i, err
+}
+
+const getDeviceByAPIKey = `-- name: GetDeviceByAPIKey :one
+SELECT id, user_id, name, is_active, created_at, api_key FROM devices WHERE api_key = $1 LIMIT 1
+`
+
+func (q *Queries) GetDeviceByAPIKey(ctx context.Context, apiKey string) (Device, error) {
+	row := q.db.QueryRow(ctx, getDeviceByAPIKey, apiKey)
+	var i Device
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.IsActive,
+		&i.CreatedAt,
+		&i.APIKey,
 	)
 	return i, err
 }
 
 const listDevicesByUser = `-- name: ListDevicesByUser :many
-SELECT id, user_id, name, is_active, created_at FROM devices WHERE user_id = $1 ORDER BY created_at ASC
+SELECT id, user_id, name, is_active, created_at, api_key FROM devices WHERE user_id = $1 ORDER BY created_at ASC
 `
 
 func (q *Queries) ListDevicesByUser(ctx context.Context, userID string) ([]Device, error) {
@@ -99,6 +120,7 @@ func (q *Queries) ListDevicesByUser(ctx context.Context, userID string) ([]Devic
 			&i.Name,
 			&i.IsActive,
 			&i.CreatedAt,
+			&i.APIKey,
 		); err != nil {
 			return nil, err
 		}
