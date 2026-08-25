@@ -63,7 +63,7 @@ func main() {
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		AllowHeaders:     []string{"Authorization", "Content-Type", "X-Device-Key"},
 		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
 	}))
@@ -110,7 +110,7 @@ func main() {
 		embedded.POST("/users", embeddedUserH.Register)
 		embedded.GET("/users/:userId", embeddedUserH.Get)
 		embedded.POST("/location", locationH.Save)
-		embedded.POST("/sos", sosH.CreateEmbedded)
+		embedded.POST("/sos", middleware.DeviceKeyAuth(q), sosH.CreateEmbedded)
 		embedded.POST("/device/status", deviceStatusH.Update)
 		embedded.GET("/device/status/:deviceId", deviceStatusH.Get)
 		embedded.POST("/ocr/results", ocrH.Create)

@@ -27,6 +27,7 @@ type Device struct {
 	Name      string    `json:"name"`
 	IsActive  bool      `json:"is_active"`
 	CreatedAt time.Time `json:"created_at"`
+	APIKey    string    `json:"api_key"`
 }
 
 type DeviceStatus struct {

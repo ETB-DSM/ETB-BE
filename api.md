@@ -175,9 +175,12 @@ Access Token + Refresh Token 재발급 (token rotation).
   "deviceId": "uuid",
   "name": "My Cane",
   "isActive": true,
+  "apiKey": "a3f8c2...",
   "createdAt": "2026-08-21T00:00:00Z"
 }
 ```
+
+> `apiKey` 는 등록 직후 1회만 응답에 포함된다. Orange Pi 설정 파일에 저장해야 한다.
 
 ---
 
@@ -482,12 +485,16 @@ GPS 위치 저장.
 
 SOS 요청 (Orange Pi → 서버).
 
+**Header**
+
+| 헤더 | 필수 | 설명 |
+|------|------|------|
+| X-Device-Key | ✓ | 디바이스 등록 시 발급된 API Key |
+
 **Request Body**
 
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
-| userId | string | ✓ | 사용자 ID |
-| deviceId | string | ✓ | 장치 ID |
 | eventType | string | ✓ | `fall` \| `manual_sos` \| `fall_detected` \| `emergency_button` |
 | latitude | float64 | ✓ | 위도 |
 | longitude | float64 | ✓ | 경도 |
@@ -498,6 +505,8 @@ SOS 요청 (Orange Pi → 서버).
 ```json
 { "sosId": "uuid", "sentToGuardian": false }
 ```
+
+**Error** `401 UNAUTHORIZED` — X-Device-Key 누락 또는 유효하지 않은 키
 
 ---
 

@@ -9,10 +9,8 @@ type CreateSosRequest struct {
 	Timestamp string  `json:"timestamp"`
 }
 
-// EmbeddedCreateSosRequest is used by the Embedded API (no JWT, userId in body)
+// EmbeddedCreateSosRequest is used by the Embedded API (no JWT, X-Device-Key header auth)
 type EmbeddedCreateSosRequest struct {
-	UserID    string  `json:"userId"     binding:"required"`
-	DeviceID  string  `json:"deviceId"   binding:"required"`
 	EventType string  `json:"eventType"  binding:"required,oneof=fall manual_sos fall_detected emergency_button"`
 	Latitude  float64 `json:"latitude"   binding:"required"`
 	Longitude float64 `json:"longitude"  binding:"required"`

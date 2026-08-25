@@ -1,7 +1,10 @@
 -- name: CreateDevice :one
-INSERT INTO devices (user_id, name)
-VALUES ($1, $2)
+INSERT INTO devices (user_id, name, api_key)
+VALUES ($1, $2, $3)
 RETURNING *;
+
+-- name: GetDeviceByAPIKey :one
+SELECT * FROM devices WHERE api_key = $1 LIMIT 1;
 
 -- name: ListDevicesByUser :many
 SELECT * FROM devices WHERE user_id = $1 ORDER BY created_at ASC;
