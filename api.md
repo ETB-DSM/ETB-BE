@@ -200,6 +200,27 @@ Access Token + Refresh Token 재발급 (token rotation).
 
 ---
 
+#### `GET /api/v1/devices/:deviceId/status`
+
+디바이스 상태 조회 (배터리·연결 상태). Orange Pi가 `POST /api/device/status`로 보고한 최신 상태를 반환한다. 요청자 소유 디바이스가 아니면 404.
+
+**Response** `200`
+```json
+{
+  "deviceId": "uuid",
+  "battery": 78,
+  "lidarOk": true,
+  "cameraOk": true,
+  "gpsOk": true,
+  "networkOk": true,
+  "createdAt": "2026-08-21T00:00:00Z"
+}
+```
+
+**Error** `404 NOT_FOUND` — 디바이스가 없거나 본인 소유가 아니거나, 아직 보고된 상태가 없음
+
+---
+
 ### 보호자 (Guardian) 🔒
 
 #### `POST /api/v1/guardians`

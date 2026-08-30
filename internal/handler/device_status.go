@@ -40,3 +40,15 @@ func (h *DeviceStatusHandler) Get(c *gin.Context) {
 	}
 	domain.OK(c, http.StatusOK, res)
 }
+
+// GetForUser는 앱(JWT) 전용 — deviceId가 요청자 소유인지 검증한 뒤 상태를 반환한다.
+func (h *DeviceStatusHandler) GetForUser(c *gin.Context) {
+	userID := c.GetString("userId")
+	deviceID := c.Param("deviceId")
+	res, err := h.svc.GetForUser(c.Request.Context(), userID, deviceID)
+	if err != nil {
+		domain.Fail(c, toAppErr(err))
+		return
+	}
+	domain.OK(c, http.StatusOK, res)
+}

@@ -85,6 +85,7 @@ func main() {
 		authRequired.POST("/devices", deviceH.Create)
 		authRequired.GET("/devices", deviceH.List)
 		authRequired.DELETE("/devices/:deviceId", deviceH.Delete)
+		authRequired.GET("/devices/:deviceId/status", deviceStatusH.GetForUser)
 
 		authRequired.POST("/guardians", guardianH.Create)
 		authRequired.GET("/guardians", guardianH.List)
