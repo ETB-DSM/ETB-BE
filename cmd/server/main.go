@@ -72,6 +72,7 @@ func main() {
 	{
 		auth := v1.Group("/auth")
 		auth.POST("/signup", authH.Signup)
+		auth.POST("/resend-code", authH.ResendCode)
 		auth.POST("/verify-email", authH.VerifyEmail)
 		auth.POST("/login", authH.Login)
 		auth.POST("/login/google", authH.LoginGoogle)

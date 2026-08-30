@@ -36,6 +36,7 @@
 | `GUARDIAN_LIMIT_EXCEEDED` | 409 | 보호자 5개 초과 |
 | `INVALID_VERIFY_CODE` | 400 | 이메일 인증 코드 불일치 또는 만료 |
 | `EMAIL_NOT_VERIFIED` | 403 | 이메일 미인증 계정 |
+| `EMAIL_ALREADY_VERIFIED` | 409 | 이미 인증된 이메일로 재전송 요청 |
 | `INTERNAL_ERROR` | 500 | 서버 내부 오류 |
 
 ---
@@ -64,6 +65,27 @@ JWT 인증이 필요한 엔드포인트는 `Authorization: Bearer <accessToken>`
 ```json
 { "message": "인증 코드가 발송되었습니다." }
 ```
+
+---
+
+#### `POST /api/v1/auth/resend-code`
+
+이메일 인증 코드 재전송. 미인증 계정에만 허용된다.
+
+**Request Body**
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| email | string | ✓ | 이메일 |
+
+**Response** `200`
+```json
+{ "message": "인증 코드가 재전송되었습니다." }
+```
+
+**Error**
+- `404 NOT_FOUND` — 가입되지 않은 이메일
+- `409 EMAIL_ALREADY_VERIFIED` — 이미 인증된 계정
 
 ---
 
