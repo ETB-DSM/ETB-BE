@@ -10,6 +10,7 @@ import (
 type DeviceStatusService interface {
 	Update(ctx context.Context, req domain.UpdateDeviceStatusRequest) (domain.DeviceStatusResponse, error)
 	Get(ctx context.Context, deviceID string) (domain.DeviceStatusResponse, error)
+	GetForUser(ctx context.Context, userID, deviceID string) (domain.DeviceStatusResponse, error)
 }
 
 type deviceStatusService struct {
@@ -41,6 +42,15 @@ func (s *deviceStatusService) Get(ctx context.Context, deviceID string) (domain.
 		return domain.DeviceStatusResponse{}, domain.ErrNotFound
 	}
 	return toDeviceStatusResponse(ds), nil
+}
+
+// GetForUser는 deviceID가 userID 소유인지 먼저 검증한 뒤 상태를 반환한다.
+// (Get은 Embedded API 전용 — JWT 없이 호출되므로 소유권 검증이 없다)
+func (s *deviceStatusService) GetForUser(ctx context.Context, userID, deviceID string) (domain.DeviceStatusResponse, error) {
+	if _, err := s.repo.GetDevice(ctx, repository.GetDeviceParams{ID: deviceID, UserID: userID}); err != nil {
+		return domain.DeviceStatusResponse{}, domain.ErrNotFound
+	}
+	return s.Get(ctx, deviceID)
 }
 
 func toDeviceStatusResponse(ds repository.DeviceStatus) domain.DeviceStatusResponse {

@@ -20,6 +20,7 @@ import (
 
 type AuthService interface {
 	Signup(ctx context.Context, req domain.SignupRequest) error
+	ResendCode(ctx context.Context, email string) error
 	VerifyEmail(ctx context.Context, req domain.VerifyEmailRequest) error
 	Login(ctx context.Context, req domain.LoginRequest) (domain.TokenResponse, error)
 	LoginGoogle(ctx context.Context, idToken string) (domain.TokenResponse, error)
@@ -59,19 +60,36 @@ func (s *authService) Signup(ctx context.Context, req domain.SignupRequest) erro
 		return domain.ErrInternalError
 	}
 
+	return s.sendVerificationCode(ctx, req.Email)
+}
+
+func (s *authService) ResendCode(ctx context.Context, email string) error {
+	user, err := s.repo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return domain.ErrNotFound
+	}
+	if user.EmailVerified {
+		return domain.ErrEmailAlreadyVerified
+	}
+	return s.sendVerificationCode(ctx, email)
+}
+
+// sendVerificationCode generates a 6-digit code, stores it in Redis with a
+// TTL, and emails it. Shared by Signup and ResendCode.
+func (s *authService) sendVerificationCode(ctx context.Context, email string) error {
 	code, err := generateCode()
 	if err != nil {
 		return domain.ErrInternalError
 	}
 
-	key := fmt.Sprintf("verify:%s", req.Email)
+	key := fmt.Sprintf("verify:%s", email)
 	ttl := time.Duration(s.cfg.Email.CodeExpireMin) * time.Minute
 	if err := s.redis.Set(ctx, key, code, ttl).Err(); err != nil {
 		return domain.ErrInternalError
 	}
 
 	body := fmt.Sprintf("<p>인증 코드: <strong>%s</strong> (5분 이내 입력)</p>", code)
-	if err := s.mailer.Send(req.Email, "[AI-Cane] 이메일 인증 코드", body); err != nil {
+	if err := s.mailer.Send(email, "[AI-Cane] 이메일 인증 코드", body); err != nil {
 		return domain.ErrInternalError
 	}
 	return nil

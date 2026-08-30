@@ -30,6 +30,19 @@ func (h *AuthHandler) Signup(c *gin.Context) {
 	domain.OK(c, http.StatusCreated, gin.H{"message": "인증 코드가 발송되었습니다."})
 }
 
+func (h *AuthHandler) ResendCode(c *gin.Context) {
+	var req domain.ResendCodeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		domain.Fail(c, domain.ErrInvalidRequest)
+		return
+	}
+	if err := h.svc.ResendCode(c.Request.Context(), req.Email); err != nil {
+		domain.Fail(c, toAppErr(err))
+		return
+	}
+	domain.OK(c, http.StatusOK, gin.H{"message": "인증 코드가 재전송되었습니다."})
+}
+
 func (h *AuthHandler) VerifyEmail(c *gin.Context) {
 	var req domain.VerifyEmailRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

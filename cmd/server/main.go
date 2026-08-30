@@ -72,6 +72,7 @@ func main() {
 	{
 		auth := v1.Group("/auth")
 		auth.POST("/signup", authH.Signup)
+		auth.POST("/resend-code", authH.ResendCode)
 		auth.POST("/verify-email", authH.VerifyEmail)
 		auth.POST("/login", authH.Login)
 		auth.POST("/login/google", authH.LoginGoogle)
@@ -85,6 +86,7 @@ func main() {
 		authRequired.POST("/devices", deviceH.Create)
 		authRequired.GET("/devices", deviceH.List)
 		authRequired.DELETE("/devices/:deviceId", deviceH.Delete)
+		authRequired.GET("/devices/:deviceId/status", deviceStatusH.GetForUser)
 
 		authRequired.POST("/guardians", guardianH.Create)
 		authRequired.GET("/guardians", guardianH.List)

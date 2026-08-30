@@ -26,5 +26,6 @@ var (
 	ErrGuardianLimitExceeded = newErr(http.StatusConflict, "GUARDIAN_LIMIT_EXCEEDED", "guardian limit exceeded")
 	ErrInvalidVerifyCode     = newErr(http.StatusBadRequest, "INVALID_VERIFY_CODE", "invalid or expired verification code")
 	ErrEmailNotVerified      = newErr(http.StatusForbidden, "EMAIL_NOT_VERIFIED", "email not verified")
+	ErrEmailAlreadyVerified  = newErr(http.StatusConflict, "EMAIL_ALREADY_VERIFIED", "email already verified")
 	ErrInternalError         = newErr(http.StatusInternalServerError, "INTERNAL_ERROR", "internal server error")
 )
